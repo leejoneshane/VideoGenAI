@@ -1,3 +1,4 @@
+
 import { ProductionPhase } from './types';
 
 export const SYSTEM_INSTRUCTION = `你是一位頂尖的「電影美術指導」與「敘事空間架構師」。你專精於將文字劇本轉化為具備戲劇張力的「核心舞台 (Core Stage)」。
@@ -36,26 +37,26 @@ export const PHASE_METADATA = {
   [ProductionPhase.VISUAL_DEV]: { 
     title: '舞台塑造', 
     icon: '🌄',
-    guide: '分析角色路徑，塑造核心敘事舞台。'
+    guide: '編織故事骨幹，譜寫影像節奏！'
   },
   [ProductionPhase.CHARACTER_DEV]: { 
     title: '角色塑造', 
     icon: '👤',
-    guide: '輸入角色特徵，提案三種視覺角色設定。'
+    guide: '提取劇情線索，塑造角色形象。'
   },
   [ProductionPhase.STORY_ARCH]: { 
     title: '敘事結構', 
     icon: '📖',
-    guide: '描述劇情關鍵，提案三種蒙太奇敘事節奏。'
+    guide: '建構完整劇情，完善敘事深度！'
   },
   [ProductionPhase.STORYBOARD]: { 
     title: '技術分鏡', 
     icon: '🎞️',
-    guide: '描述動作場景，提案三種分鏡鏡位策略。'
+    guide: '將敘事轉化為技術指令，規劃每一幀的張力。'
   },
   [ProductionPhase.VIDEO_PROMPTING]: { 
     title: '影片生成', 
     icon: '⚡',
-    guide: '輸入拍攝願景，提案三種專業影片提示詞。'
+    guide: '根據拍攝願景，生成完整影片！'
   },
 };

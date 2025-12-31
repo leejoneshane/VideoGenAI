@@ -35,22 +35,18 @@ export const ProductionPlanPhase: React.FC<ProductionPlanPhaseProps> = ({ dna, s
               <textarea 
                 value={dna[f.id as keyof ProjectDNA] || ''} 
                 onChange={(e) => updateField(f.id as keyof ProjectDNA, e.target.value)} 
-                rows={6} 
+                rows={5} 
                 className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm text-neutral-300 outline-none focus:ring-1 focus:ring-amber-500 leading-relaxed transition-all" 
               />
             </div>
           ))}
         </div>
-        <div className="flex flex-col space-y-3 group">
+        
+        <div className="flex flex-col space-y-4 group">
           <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest flex items-center gap-2">
             <BookOpen className="w-3.5 h-3.5" /> 劇本摘要
           </label>
-          <textarea 
-            value={dna.story || ''} 
-            onChange={(e) => updateField('story', e.target.value)} 
-            rows={20} 
-            className="w-full bg-white/5 border border-white/10 rounded-2xl p-6 text-sm focus:ring-1 focus:ring-amber-500 outline-none leading-relaxed font-serif text-neutral-300 transition-all flex-1" 
-          />
+          
           <button 
             onClick={onRenderCoreVisual}
             disabled={isLoading}
@@ -59,6 +55,13 @@ export const ProductionPlanPhase: React.FC<ProductionPlanPhaseProps> = ({ dna, s
             {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ImageIcon className="w-4 h-4 group-hover/btn:scale-110 transition-transform" />}
             渲染核心視覺定位圖 (Core Visual DNA)
           </button>
+
+          <textarea 
+            value={dna.story || ''} 
+            onChange={(e) => updateField('story', e.target.value)} 
+            rows={15} 
+            className="w-full bg-white/5 border border-white/10 rounded-2xl p-6 text-sm focus:ring-1 focus:ring-amber-500 outline-none leading-relaxed font-serif text-neutral-300 transition-all flex-1" 
+          />
         </div>
       </div>
     </div>

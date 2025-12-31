@@ -1,3 +1,4 @@
+
 export { };
 
 export enum ProductionPhase {
@@ -8,6 +9,13 @@ export enum ProductionPhase {
   STORY_ARCH = 'STORY_ARCH',
   STORYBOARD = 'STORYBOARD',
   VIDEO_PROMPTING = 'VIDEO_PROMPTING'
+}
+
+export interface Message {
+  role: 'user' | 'assistant';
+  content: string;
+  videoUrl?: string;
+  images?: string[];
 }
 
 export interface Suggestion {
@@ -28,25 +36,50 @@ export interface StageDesign {
 export interface CharacterDesign {
   name: string;
   role: string;
-  physicalTraits: string; // 外貌特徵
-  visualTone: string;    // 外觀材質色調
-  motivation: string;    // 內在動機與表情動作
-  gridImage?: string;    // 角色形象九宮格
+  physicalTraits: string; 
+  visualTone: string;    
+  motivation: string;    
+  gridImage?: string;    
 }
 
-export interface Message {
-  role: 'user' | 'assistant';
-  content: string;
-  images?: string[]; 
-  videoUrl?: string;
-  phase?: ProductionPhase;
+export interface Chapter {
+  title: string;
+  emotionalTone: string;
+  summary: string;
+  scenes: string[];
 }
 
-export interface GeneratedVideo {
-  id: string;
-  url: string;
+export interface StoryArchitecture {
+  incitingIncident: string;
+  midpoint: string;
+  climax: string;
+  resolution: string;
+  chapters: Chapter[];
+}
+
+export interface StoryboardEntry {
+  startTime: string; // mm:ss
+  endTime: string;   // mm:ss
+  stage: string;     
+  character: string; 
+  shotType: string;
+  movement: string;
+  action: string;    
+  audio: string;     
+}
+
+export interface Storyboard {
+  entries: StoryboardEntry[];
+}
+
+export interface VideoPromptEntry {
+  shotIdx: number;
+  timeRange: string;
   prompt: string;
-  shotLabel: string;
+  isContinuous: boolean;
+  stageRef: string;
+  charRef: string;
+  videoUrl?: string; // 儲存生成後的影片網址
 }
 
 export interface ProjectDNA {
@@ -57,19 +90,21 @@ export interface ProjectDNA {
   environment: string;
   socialBackground: string;
   coreNarrative: string;
+  directorVision?: string;
 }
 
 export interface ProjectState {
   currentPhase: ProductionPhase;
-  initialInput?: string;
+  initialInput: string;
+  videoTitle?: string;  // 影片標題
+  videoAuthor?: string; // 作者名稱
   dna: ProjectDNA;
-  suggestions: Suggestion[];
   proposedStages: StageDesign[];
-  proposedCharacters: CharacterDesign[]; // 新增：角色塑造提案
+  proposedCharacters: CharacterDesign[]; 
+  storyArchitecture?: StoryArchitecture;
+  storyboard?: Storyboard;
+  videoPrompts?: VideoPromptEntry[];
   selectedStageIndex?: number;
-  selectedCharacterIndex?: number;      // 新增：目前選中的角色索引
-  history: Message[];
-  generatedVideos: GeneratedVideo[];
-  sceneGrid: string[]; 
-  coreSceneImage?: string; 
+  selectedCharacterIndex?: number;      
+  coreStageImage?: string; 
 }

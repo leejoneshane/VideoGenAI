@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Loader2, MapPin, Edit3, Grid, Monitor } from 'lucide-react';
+import { Loader2, MapPin, Edit3, Grid } from 'lucide-react';
 import { ProjectState, StageDesign } from '../types';
 
 interface VisualDevPhaseProps {
@@ -19,7 +19,7 @@ export const VisualDevPhase: React.FC<VisualDevPhaseProps> = ({
     <div className="w-full space-y-12 pb-20 animate-in fade-in duration-1000">
       <div className="text-center space-y-4">
         <h2 className="text-3xl font-serif text-neutral-100">{guideText}</h2>
-        <p className="text-sm text-neutral-500 max-w-xl mx-auto">AI 已識別故事中的主角活動地理集群，請渲染舞台視覺九宮格以確保場景的一致性。</p>
+        <p className="text-sm text-neutral-500 max-w-xl mx-auto">AI 已識別故事中的主角活動地理集群，請渲染舞台視覺九宮格以確保場景的一致性。生成後的圖片請至右側側邊欄點擊放大檢視。</p>
       </div>
 
       {isAnalyzing ? (
@@ -60,17 +60,6 @@ export const VisualDevPhase: React.FC<VisualDevPhaseProps> = ({
               </button>
             </div>
           ))}
-        </div>
-      )}
-
-      {project.selectedStageIndex !== undefined && project.proposedStages[project.selectedStageIndex]?.gridImage && (
-        <div className="space-y-6 pt-12 border-t border-white/5 animate-in zoom-in-95">
-          <h3 className="text-xs font-bold text-amber-500 uppercase tracking-[0.4em] flex items-center gap-2">
-            <Monitor className="w-4 h-4" /> {project.proposedStages[project.selectedStageIndex]?.name} 視覺細節
-          </h3>
-          <div className="aspect-square max-w-2xl mx-auto rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
-            <img src={project.proposedStages[project.selectedStageIndex!]?.gridImage} className="w-full h-full object-cover" alt="Stage Grid" />
-          </div>
         </div>
       )}
     </div>
