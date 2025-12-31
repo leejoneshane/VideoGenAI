@@ -195,6 +195,17 @@ const App: React.FC = () => {
     setTempDNA(updatedDNA);
   };
 
+  const handlePolishDNA = async (field: keyof ProjectDNA, label: string) => {
+    if (!geminiRef.current || isLoading) return;
+    const currentValue = tempDNA[field] || project.dna[field];
+    if (!currentValue) return;
+    setIsLoading(true);
+    try {
+      const polished = await geminiRef.current.polishText(currentValue, label);
+      updateDNAField(field, polished);
+    } catch (err) { handleApiError(err); } finally { setIsLoading(false); }
+  };
+
   const updateVideoMetadata = (title: string, author: string) => {
     setProject(prev => {
       const updated = { ...prev, videoTitle: title, videoAuthor: author };
@@ -202,11 +213,15 @@ const App: React.FC = () => {
       if (updated.videoPrompts && updated.videoPrompts.length > 0) {
         const newPrompts = [...updated.videoPrompts];
         const first = { ...newPrompts[0] };
-        const oldTitle = prev.videoTitle || 'Untitled';
-        const oldAuthor = prev.videoAuthor || 'AI Director';
+        
+        // 預設值必須與 geminiService 產出的 instruction 一致
+        const oldTitle = prev.videoTitle || '未命名';
+        const oldAuthor = prev.videoAuthor || 'Gemini 3';
+        
         first.prompt = first.prompt
           .replace(`影片標題：${oldTitle}`, `影片標題：${title}`)
-          .replace(`作者：${oldAuthor}`, `作者：${author}`);
+          .replace(`導演：${oldAuthor}`, `導演：${author}`);
+          
         newPrompts[0] = first;
         updated.videoPrompts = newPrompts;
       }
@@ -230,6 +245,17 @@ const App: React.FC = () => {
       }
       return { ...prev, proposedStages: newStages };
     });
+  };
+
+  const handlePolishStage = async (idx: number, field: keyof StageDesign, label: string) => {
+    if (!geminiRef.current || isLoading) return;
+    const currentValue = project.proposedStages?.[idx]?.[field] as string;
+    if (!currentValue) return;
+    setIsLoading(true);
+    try {
+      const polished = await geminiRef.current.polishText(currentValue, label);
+      updateStage(idx, field, polished);
+    } catch (err) { handleApiError(err); } finally { setIsLoading(false); }
   };
 
   const updateCharacter = (idx: number, field: keyof CharacterDesign, value: string) => {
@@ -564,10 +590,10 @@ const App: React.FC = () => {
             </div>
           )}
           {activeStep === ProductionPhase.PRODUCTION_PLAN && (
-            <ProductionPlanPhase dna={tempDNA} setDna={setTempDNA} onRenderCoreVisual={handleRenderCoreStageOnly} isLoading={isLoading} />
+            <ProductionPlanPhase dna={tempDNA} setDna={setTempDNA} onRenderCoreVisual={handleRenderCoreStageOnly} onPolishDNA={handlePolishDNA} isLoading={isLoading} />
           )}
           {activeStep === ProductionPhase.VISUAL_DEV && (
-            <VisualDevPhase project={project} isAnalyzing={isAnalyzing} isLoading={isLoading} onUpdateStage={updateStage} onRenderGrid={handleRenderStageGrid} guideText={PHASE_METADATA[activeStep]?.guide} />
+            <VisualDevPhase project={project} isAnalyzing={isAnalyzing} isLoading={isLoading} onUpdateStage={updateStage} onPolishStage={handlePolishStage} onRenderGrid={handleRenderStageGrid} guideText={PHASE_METADATA[activeStep]?.guide} />
           )}
           {activeStep === ProductionPhase.CHARACTER_DEV && (
             <CharacterDevPhase project={project} isAnalyzing={isAnalyzing} isLoading={isLoading} onUpdateCharacter={updateCharacter} onPolishCharacter={handlePolishCharacter} onRenderGrid={handleRenderCharacterGrid} guideText={PHASE_METADATA[activeStep]?.guide} />

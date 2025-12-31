@@ -110,7 +110,7 @@ export class GeminiService {
     - 場地大小與空間格局 (Scale & Layout)：定義空間的物理邊界與層次感。
     - 位置、方位與方向感 (Position & Orientation)：角色進入空間後的視覺導向。
     - 關鍵物件、道具與美術陳設 (Key Props & Dressing)：具有敘事功能的環境物件。
-    - 光影質調、色調色標與材質細節 (Lighting, Color & Textures)：如強烈對比、特定光譜或材質紋理（金屬、斑駁混凝土等）。
+    - 光影質調、色調色標與材質細節 (Lighting, Color & Textures)：如強烈對比、特定光譜 or 材質紋理（金屬、斑駁混凝土等）。
     - 敘事氛圍與心理空間感 (Atmosphere)：環境如何反映角色的心境或故事壓力。
 
 劇本摘要：${dna.story}
@@ -273,10 +273,10 @@ export class GeminiService {
 
     const prompt = `你是一位頂尖影片提示詞專家。
     
-    【關鍵規則：文字渲染優化】
+    【關鍵規則：文字渲染與繁體中文優化】
     1. Shot 1 (Idx 0) 必須是影片開場。
-    2. 描述中必須包含「${title || ''}」與「導演：${author || 'Gemini 3'}」出現在畫面中。
-    3. 針對文字渲染，請在描述中加入：「Typography should be clean, high-contrast, professional cinematic titles overlay. The traditional Chinese characters must be rendered as sharp, geometric graphic design elements to ensure stroke accuracy. Style: Minimalist white typography on dark background.」
+    2. 描述中必須包含「影片標題：${title || '未命名'}」與「導演：${author || 'Gemini 3'}」出現在畫面中。
+    3. 文字渲染指令 (CRITICAL)：「The text '影片標題：${title}' and '導演：${author}' must be rendered with perfect calligraphic structure. Traditional Chinese characters must exhibit precise stroke order and sharp skeletal geometry. Avoid any stroke artifacts or nonsensical patterns. The font should be a bold, high-contrast Heiti (sans-serif) or Mingti (serif) style, designed as an integral vector-like graphic overlay. Minimalism, white typography on dark cinematic backdrop.」
     4. 從 Shot 2 開始才是正片故事，描述中需強調開場字幕已淡出。
     5. 每個提示詞描述長度不超過 5 秒。
     6. 務必參照對應 ID 的視覺描述進行生成。
@@ -344,14 +344,28 @@ export class GeminiService {
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
-      contents: `內容：${text}。請以頂尖編劇與攝影指導的視角，優化這段內容的敘事張力與感官細節。`,
+      contents: `你現在是一位備受國際影壇肯定的頂尖電影編劇與視覺攝影指導。請針對目前的「${type}」欄位內容進行深度潤色。
+
+【目前欄位】
+${type}
+
+【原始內容】
+${text}
+
+【潤色任務】
+1. 優化敘事張力：使其文字充滿電影節奏感與戲劇衝突。
+2. 強化感官細節：加入精確的材質、光影、氣息或動作細節。
+3. 提升專業度：使用正確的電影工業術語，並確保文字風格符合該欄位的設計目標。
+4. 繁體中文：請務必以流暢且具備文學感的繁體中文輸出。
+
+請直接回傳潤色後的最終內容，不需要包含任何解釋文字。`,
     });
     return response.text || text;
   }
 
   async generateCoreStyleVisual(dna: ProjectDNA): Promise<string | null> {
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-    const prompt = `A cinematic masterpiece mood board capturing the essence of: "${dna.coreNarrative}". Cinematic lighting, Texture-driven, Style: ${dna.style}.`;
+    const prompt = `A cinematic masterpiece mood board capturing the essence of: "${dna.story}". Cinematic lighting, Texture-driven, Style: ${dna.style}.`;
     try {
       const response = await ai.models.generateContent({
         model: 'gemini-3-pro-image-preview',

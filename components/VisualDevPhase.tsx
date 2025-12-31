@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Loader2, MapPin, Edit3, Grid } from 'lucide-react';
+import { Loader2, MapPin, Edit3, Grid, Wand2 } from 'lucide-react';
 import { ProjectState, StageDesign } from '../types';
 
 interface VisualDevPhaseProps {
@@ -8,12 +8,13 @@ interface VisualDevPhaseProps {
   isAnalyzing: boolean;
   isLoading: boolean;
   onUpdateStage: (idx: number, field: keyof StageDesign, value: string) => void;
+  onPolishStage: (idx: number, field: keyof StageDesign, label: string) => void;
   onRenderGrid: (idx: number) => void;
   guideText: string;
 }
 
 export const VisualDevPhase: React.FC<VisualDevPhaseProps> = ({
-  project, isAnalyzing, isLoading, onUpdateStage, onRenderGrid, guideText
+  project, isAnalyzing, isLoading, onUpdateStage, onPolishStage, onRenderGrid, guideText
 }) => {
   return (
     <div className="w-full space-y-12 pb-20 animate-in fade-in duration-1000">
@@ -44,13 +45,28 @@ export const VisualDevPhase: React.FC<VisualDevPhaseProps> = ({
                 onChange={(e) => onUpdateStage(idx, 'name', e.target.value)} 
                 placeholder="舞台名稱"
               />
-              <textarea 
-                className="w-full bg-white/5 rounded-xl p-3 text-[11px] text-neutral-400 focus:text-neutral-200 outline-none resize-none flex-1 mb-4 leading-relaxed" 
-                rows={6} 
-                value={stage.description} 
-                onChange={(e) => onUpdateStage(idx, 'description', e.target.value)} 
-                placeholder="舞台空間描述..." 
-              />
+              
+              <div className="flex-1 flex flex-col group/desc">
+                <div className="flex justify-between items-center mb-2">
+                  <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">舞台空間描述</label>
+                  <button 
+                    onClick={() => onPolishStage(idx, 'description', '舞台空間描述')} 
+                    disabled={isLoading}
+                    className="opacity-0 group-hover/desc:opacity-100 text-amber-500 hover:text-white transition-all bg-amber-600/10 p-1 rounded-md" 
+                    title="AI 精修描述"
+                  >
+                    <Wand2 className="w-3 h-3" />
+                  </button>
+                </div>
+                <textarea 
+                  className="w-full bg-white/5 rounded-xl p-3 text-[11px] text-neutral-400 focus:text-neutral-200 outline-none resize-none flex-1 mb-4 leading-relaxed" 
+                  rows={6} 
+                  value={stage.description} 
+                  onChange={(e) => onUpdateStage(idx, 'description', e.target.value)} 
+                  placeholder="舞台空間描述..." 
+                />
+              </div>
+
               <button 
                 onClick={() => onRenderGrid(idx)} 
                 disabled={isLoading} 

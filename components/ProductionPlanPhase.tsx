@@ -1,16 +1,17 @@
 
 import React from 'react';
-import { Target, Users, MapPin, BookOpen, ImageIcon, Loader2, Maximize2, Palette, Zap } from 'lucide-react';
+import { Target, Users, MapPin, BookOpen, ImageIcon, Loader2, Maximize2, Palette, Zap, Wand2 } from 'lucide-react';
 import { ProjectDNA } from '../types';
 
 interface ProductionPlanPhaseProps {
   dna: ProjectDNA;
   setDna: (dna: ProjectDNA) => void;
   onRenderCoreVisual: () => void;
+  onPolishDNA: (field: keyof ProjectDNA, label: string) => void;
   isLoading: boolean;
 }
 
-export const ProductionPlanPhase: React.FC<ProductionPlanPhaseProps> = ({ dna, setDna, onRenderCoreVisual, isLoading }) => {
+export const ProductionPlanPhase: React.FC<ProductionPlanPhaseProps> = ({ dna, setDna, onRenderCoreVisual, onPolishDNA, isLoading }) => {
   const updateField = (field: keyof ProjectDNA, value: string) => {
     setDna({ ...dna, [field]: value });
   };
@@ -33,9 +34,19 @@ export const ProductionPlanPhase: React.FC<ProductionPlanPhaseProps> = ({ dna, s
         <div className="space-y-8">
           {masterListFields.map(f => (
             <div key={f.id} className="group relative">
-              <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest flex items-center gap-2 mb-3">
-                {f.icon} {f.label}
-              </label>
+              <div className="flex justify-between items-center mb-3">
+                <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest flex items-center gap-2">
+                  {f.icon} {f.label}
+                </label>
+                <button 
+                  onClick={() => onPolishDNA(f.id as keyof ProjectDNA, f.label)} 
+                  disabled={isLoading}
+                  className="opacity-0 group-hover:opacity-100 text-amber-500 hover:text-white transition-all bg-amber-600/10 p-1 rounded-md" 
+                  title="AI 精修描述"
+                >
+                  <Wand2 className="w-3 h-3" />
+                </button>
+              </div>
               <textarea 
                 value={dna[f.id as keyof ProjectDNA] || ''} 
                 onChange={(e) => updateField(f.id as keyof ProjectDNA, e.target.value)} 
@@ -47,9 +58,19 @@ export const ProductionPlanPhase: React.FC<ProductionPlanPhaseProps> = ({ dna, s
         </div>
         
         <div className="flex flex-col space-y-4 group">
-          <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest flex items-center gap-2">
-            <BookOpen className="w-3.5 h-3.5" /> 劇本摘要
-          </label>
+          <div className="flex justify-between items-center">
+            <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest flex items-center gap-2">
+              <BookOpen className="w-3.5 h-3.5" /> 劇本摘要
+            </label>
+            <button 
+              onClick={() => onPolishDNA('story', '劇本摘要')} 
+              disabled={isLoading}
+              className="opacity-0 group-hover:opacity-100 text-amber-500 hover:text-white transition-all bg-amber-600/10 p-1 rounded-md" 
+              title="AI 精修劇本"
+            >
+              <Wand2 className="w-3.5 h-3.5" />
+            </button>
+          </div>
           
           <button 
             onClick={onRenderCoreVisual}
