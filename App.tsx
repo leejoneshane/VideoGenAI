@@ -15,7 +15,7 @@ import {
   Film, Loader2, ChevronRight, Download, Upload,
   X, CheckCircle2, Terminal, MapPin, Users,
   Grid, Image as ImageIcon, Maximize2, DownloadCloud, UserPlus,
-  BookOpen, Layout, Zap, Package, User
+  BookOpen, Layout, Zap, Package, User, Sparkles
 } from 'lucide-react';
 
 const App: React.FC = () => {
@@ -29,13 +29,26 @@ const App: React.FC = () => {
   const [expandedImage, setExpandedImage] = useState<string | null>(null);
   
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [selectedSuggestion, setSelectedSuggestion] = useState<Suggestion | null>(null);
 
   const [project, setProject] = useState<ProjectState>({
     currentPhase: ProductionPhase.INSPIRATION,
     initialInput: '',
     videoTitle: '',
     videoAuthor: '',
-    dna: { format: '電影', style: '寫實電影感', story: '', ratio: '16:9', environment: '', socialBackground: '', coreNarrative: '', directorVision: '' },
+    dna: { 
+      format: '電影', 
+      style: '寫實電影感', 
+      story: '', 
+      ratio: '16:9', 
+      environment: '', 
+      socialBackground: '', 
+      spatialGeometry: '', 
+      colorAesthetics: '', 
+      conflictEssence: '', 
+      coreNarrative: '', 
+      directorVision: '' 
+    },
     proposedStages: [], 
     proposedCharacters: [], 
     coreStageImage: undefined 
@@ -67,7 +80,6 @@ const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    // 修復處：加入安全導航 ?. 以防止讀取 undefined.length
     if (activeStep === ProductionPhase.VISUAL_DEV && project.proposedStages?.length === 0 && !isAnalyzing && geminiRef.current) {
       handleIdentifyStages();
     }
@@ -116,9 +128,7 @@ const App: React.FC = () => {
     if (!geminiRef.current || isLoading || !project.storyArchitecture) return;
     setIsLoading(true);
     try {
-      const stageNames = (project.proposedStages || []).map(s => s.name);
-      const charNames = (project.proposedCharacters || []).map(c => c.name);
-      const sb = await geminiRef.current.generateStoryboard(project.dna, project.storyArchitecture, stageNames, charNames);
+      const sb = await geminiRef.current.generateStoryboard(project.dna, project.storyArchitecture, project.proposedStages, project.proposedCharacters);
       setProject(prev => ({ ...prev, storyboard: sb }));
     } catch (err) { handleApiError(err); } finally { setIsLoading(false); }
   };
@@ -255,19 +265,31 @@ const App: React.FC = () => {
     if (e) e.preventDefault();
     if (!input.trim() || isLoading || !geminiRef.current) return;
     setIsLoading(true);
+    setSelectedSuggestion(null);
+    setProject(prev => ({ ...prev, initialInput: input }));
     try {
       const results = await geminiRef.current.generateSuggestions(input, activeStep, JSON.stringify(project.dna));
       setSuggestions(results || []);
     } catch (err) { handleApiError(err); } finally { setIsLoading(false); }
   };
 
-  const handleSuggestionClick = async (s: Suggestion) => {
-    if (!geminiRef.current) return;
+  const handleSuggestionClick = (s: Suggestion) => {
+    updateDNAField('format', s.format || '電影');
+    updateDNAField('style', s.style || '寫實電影感');
+    setSelectedSuggestion(s);
+  };
+
+  const handleProceedToPlanning = async () => {
+    if (!geminiRef.current || !selectedSuggestion) return;
     setIsElaborating(true);
     try {
-      const detailedDNA = await geminiRef.current.elaboratePlan(s, project.dna);
+      const detailedDNA = await geminiRef.current.elaboratePlan(
+        { ...selectedSuggestion, format: project.dna.format, style: project.dna.style }, 
+        project.dna
+      );
       setTempDNA(detailedDNA);
       setSuggestions([]);
+      setSelectedSuggestion(null);
       setProject(prev => ({
         ...prev, 
         dna: detailedDNA, 
@@ -352,6 +374,7 @@ const App: React.FC = () => {
         setProject(data);
         setActiveStep(data.currentPhase);
         setTempDNA(data.dna);
+        setInput(data.initialInput || '');
       } catch (err) { alert('檔案格式錯誤。'); }
     };
     reader.readAsText(file);
@@ -412,6 +435,8 @@ const App: React.FC = () => {
                               project.videoPrompts.every(p => p.videoUrl);
 
   if (!hasKey) return <ApiKeySelector onSelected={() => setHasKey(true)} />;
+
+  const isStepOne = activeStep === ProductionPhase.INSPIRATION;
 
   return (
     <div className="flex h-screen bg-[#050505] text-white overflow-hidden font-sans">
@@ -510,7 +535,33 @@ const App: React.FC = () => {
 
         <section className="flex-1 flex flex-col items-center justify-start p-8 max-w-5xl mx-auto w-full overflow-y-auto">
           {activeStep === ProductionPhase.INSPIRATION && (
-            <InspirationPhase input={input} setInput={setInput} isLoading={isLoading} isElaborating={isElaborating} suggestions={suggestions} onSubmit={handleSubmitIdea} onSuggestionClick={handleSuggestionClick} guideText={PHASE_METADATA[activeStep]?.guide} dna={project.dna} onUpdateDNA={updateDNAField} />
+            <div className="w-full flex flex-col items-center">
+              <InspirationPhase 
+                input={input} 
+                setInput={setInput} 
+                isLoading={isLoading} 
+                isElaborating={isElaborating} 
+                suggestions={suggestions} 
+                onSubmit={handleSubmitIdea} 
+                onSuggestionClick={handleSuggestionClick} 
+                selectedId={selectedSuggestion?.title}
+                guideText={PHASE_METADATA[activeStep]?.guide} 
+                dna={project.dna} 
+                onUpdateDNA={updateDNAField} 
+              />
+              {selectedSuggestion && (
+                <div className="mt-8 animate-in fade-in slide-in-from-bottom-4">
+                   <button 
+                    onClick={handleProceedToPlanning} 
+                    disabled={isElaborating}
+                    className="flex items-center gap-3 bg-amber-600 hover:bg-amber-500 px-10 py-4 rounded-full font-bold shadow-2xl transition-all transform hover:scale-105"
+                  >
+                    {isElaborating ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
+                    確認以此方向進行詳細規劃
+                  </button>
+                </div>
+              )}
+            </div>
           )}
           {activeStep === ProductionPhase.PRODUCTION_PLAN && (
             <ProductionPlanPhase dna={tempDNA} setDna={setTempDNA} onRenderCoreVisual={handleRenderCoreStageOnly} isLoading={isLoading} />
@@ -543,28 +594,61 @@ const App: React.FC = () => {
         </section>
       </main>
 
-      <aside className="w-80 border-l border-white/5 bg-black/40 p-6 flex flex-col gap-8 overflow-y-auto scrollbar-none">
-        <h3 className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest border-b border-white/5 pb-2">視覺檔案 (Asset)</h3>
-        <div className="space-y-4">
-          <span className="text-[10px] text-amber-500/70 font-mono uppercase tracking-widest block flex items-center gap-2">
-            <Zap className="w-3 h-3" /> CORE_STYLE_DNA
-          </span>
-          {project.coreStageImage ? (
-            <div className="aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-lg cursor-zoom-in group relative" onClick={() => setExpandedImage(project.coreStageImage!)}>
-              <img src={project.coreStageImage} className="w-full h-full object-cover transition-transform group-hover:scale-105" alt="Core Stage Visual" />
-              <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                <Maximize2 className="w-6 h-6 text-white" />
+      {!isStepOne && (
+        <aside className="w-80 border-l border-white/5 bg-black/40 p-6 flex flex-col gap-8 overflow-y-auto scrollbar-none animate-in slide-in-from-right-4 duration-500">
+          <h3 className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest border-b border-white/5 pb-2">視覺檔案 (Asset)</h3>
+          <div className="space-y-4">
+            <span className="text-[10px] text-amber-500/70 font-mono uppercase tracking-widest block flex items-center gap-2">
+              <Zap className="w-3 h-3" /> CORE_STYLE_DNA
+            </span>
+            {project.coreStageImage ? (
+              <div className="aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-lg cursor-zoom-in group relative" onClick={() => setExpandedImage(project.coreStageImage!)}>
+                <img src={project.coreStageImage} className="w-full h-full object-cover transition-transform group-hover:scale-105" alt="Core Stage Visual" />
+                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Maximize2 className="w-6 h-6 text-white" />
+                </div>
               </div>
+            ) : (
+              <div className="py-12 border border-dashed border-white/10 rounded-2xl text-center opacity-30">
+                <ImageIcon className="w-6 h-6 mx-auto mb-2 text-neutral-700" />
+                <p className="text-[8px] uppercase tracking-widest">等待核心視覺定位</p>
+              </div>
+            )}
+          </div>
+          
+          <div className="space-y-4">
+            <span className="text-[10px] text-amber-500/70 font-mono uppercase tracking-widest block flex items-center gap-2">
+              <MapPin className="w-3 h-3" /> STAGE_ASSETS
+            </span>
+            <div className="grid grid-cols-2 gap-2">
+              {project.proposedStages?.filter(s => s.gridImage).map((stage, idx) => (
+                <div key={idx} className="aspect-square bg-neutral-900 rounded-lg overflow-hidden border border-white/5 cursor-zoom-in group relative" onClick={() => setExpandedImage(stage.gridImage!)}>
+                  <img src={stage.gridImage} className="w-full h-full object-cover transition-opacity group-hover:opacity-80" alt={stage.name} />
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 bg-black/40 transition-opacity">
+                    <span className="text-[8px] font-bold uppercase">{stage.name}</span>
+                  </div>
+                </div>
+              ))}
             </div>
-          ) : (
-            <div className="py-12 border border-dashed border-white/10 rounded-2xl text-center opacity-30">
-              <ImageIcon className="w-6 h-6 mx-auto mb-2 text-neutral-700" />
-              <p className="text-[8px] uppercase tracking-widest">等待核心視覺定位</p>
+          </div>
+
+          <div className="space-y-4">
+            <span className="text-[10px] text-amber-500/70 font-mono uppercase tracking-widest block flex items-center gap-2">
+              <Users className="w-3 h-3" /> CHARACTER_ASSETS
+            </span>
+            <div className="grid grid-cols-2 gap-2">
+              {project.proposedCharacters?.filter(c => c.gridImage).map((char, idx) => (
+                <div key={idx} className="aspect-square bg-neutral-900 rounded-lg overflow-hidden border border-white/5 cursor-zoom-in group relative" onClick={() => setExpandedImage(char.gridImage!)}>
+                  <img src={char.gridImage} className="w-full h-full object-cover transition-opacity group-hover:opacity-80" alt={char.name} />
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 bg-black/40 transition-opacity">
+                    <span className="text-[8px] font-bold uppercase">{char.name}</span>
+                  </div>
+                </div>
+              ))}
             </div>
-          )}
-        </div>
-        {/* Stages, Characters ... (已在 metadata 中妥善處理) */}
-      </aside>
+          </div>
+        </aside>
+      )}
     </div>
   );
 };

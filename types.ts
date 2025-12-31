@@ -25,18 +25,19 @@ export interface Suggestion {
   environment?: string;
   socialBackground?: string;
   coreNarrative?: string;
-  // The following fields are used to refine the production DNA during the inspiration phase
   format?: string;
   style?: string;
 }
 
 export interface StageDesign {
+  id: string; // 例如: stage_1
   name: string;
   description: string;
   gridImage?: string;
 }
 
 export interface CharacterDesign {
+  id: string; // 例如: char_01
   name: string;
   role: string;
   physicalTraits: string; 
@@ -92,6 +93,9 @@ export interface ProjectDNA {
   ratio: string;
   environment: string;
   socialBackground: string;
+  spatialGeometry: string;   // 空間幾何
+  colorAesthetics: string;   // 色彩美學
+  conflictEssence: string;   // 衝突本質
   coreNarrative: string;
   directorVision?: string;
 }

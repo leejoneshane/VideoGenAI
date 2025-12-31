@@ -34,7 +34,7 @@ export const VisualDevPhase: React.FC<VisualDevPhaseProps> = ({
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <MapPin className="w-3.5 h-3.5 text-amber-600" />
-                  <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">STAGE 0{idx+1}</span>
+                  <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">{stage.id || `STAGE 0${idx+1}`}</span>
                 </div>
                 <Edit3 className="w-3.5 h-3.5 text-neutral-700 opacity-50" />
               </div>
