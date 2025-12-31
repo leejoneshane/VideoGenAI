@@ -116,7 +116,7 @@ export class GeminiService {
 視覺風格定義：${dna.style}
 環境背景：${dna.environment}
 
-請回傳 JSON 陣列，包含 name 與詳盡的 description。`;
+請回傳 JSON 陣列，包含 name（2-4 個繁體中文名稱）與詳盡的 description。`;
 
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
@@ -153,7 +153,7 @@ export class GeminiService {
     2. 外觀材質色調 (visualTone)：定義角色的「視覺 DNA」。包含服裝面料細節（粗糙皮革、絲綢光澤等）、專屬配色方案、以及光影如何在其臉部產生戲劇效果。
     3. 內在動機與表情動作 (motivation)：核心欲望如何轉化為習慣性表情（如：焦慮的眨眼、冷酷的嘴角下撇）與典型的動態行為。
     
-    請回傳 JSON 陣列。`;
+    請回傳 JSON 陣列，包含 name（2-4 個繁體中文名稱）與 role, physicalTraits, visualTone, motivation。`;
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
