@@ -17,7 +17,7 @@ export const StoryboardPhase: React.FC<StoryboardPhaseProps> = ({
   const sb = project.storyboard;
 
   useEffect(() => {
-    if (sb && sb.entries.length > 0) {
+    if (sb && sb.entries && sb.entries.length > 0) {
       let needsFix = false;
       const fixedEntries = sb.entries.map(entry => {
         let { startTime, endTime } = entry;
@@ -36,7 +36,7 @@ export const StoryboardPhase: React.FC<StoryboardPhaseProps> = ({
       });
       if (needsFix) onUpdateStoryboard({ entries: fixedEntries });
     }
-  }, [sb?.entries.length]); 
+  }, [sb?.entries?.length]); 
 
   if (isLoading && !sb) {
     return (
@@ -47,7 +47,7 @@ export const StoryboardPhase: React.FC<StoryboardPhaseProps> = ({
     );
   }
 
-  if (!sb) return null;
+  if (!sb || !sb.entries) return null;
 
   const addSeconds = (timeStr: string, secondsToAdd: number) => {
     const parts = (timeStr || "00:00").split(':');
@@ -67,7 +67,8 @@ export const StoryboardPhase: React.FC<StoryboardPhaseProps> = ({
   };
 
   const handleUpdateEntry = (idx: number, field: keyof StoryboardEntry, val: string) => {
-    const newEntries = [...sb.entries];
+    const newEntries = [...(sb.entries || [])];
+    if (!newEntries[idx]) return;
     newEntries[idx] = { ...newEntries[idx], [field]: val };
     if (field === 'endTime' && idx < newEntries.length - 1) {
       newEntries[idx + 1] = { ...newEntries[idx + 1], startTime: addSeconds(val, 1) };
@@ -78,15 +79,15 @@ export const StoryboardPhase: React.FC<StoryboardPhaseProps> = ({
   };
 
   const handleAddEntry = (idx: number) => {
-    const newEntries = [...sb.entries];
+    const newEntries = [...(sb.entries || [])];
     const currentEntry = newEntries[idx];
-    const startTime = addSeconds(currentEntry.endTime || "00:00", 1);
+    const startTime = currentEntry ? addSeconds(currentEntry.endTime || "00:00", 1) : "00:00";
     const endTime = addSeconds(startTime, 5);
     const newEntry: StoryboardEntry = {
       startTime,
       endTime,
-      stage: project.proposedStages[0]?.name || "舞台名稱",
-      character: project.proposedCharacters[0]?.name || "角色姓名",
+      stage: project.proposedStages?.[0]?.name || "舞台名稱",
+      character: project.proposedCharacters?.[0]?.name || "角色姓名",
       shotType: "MCU",
       movement: "STATIC",
       action: "新場景視覺動態...",
@@ -97,7 +98,7 @@ export const StoryboardPhase: React.FC<StoryboardPhaseProps> = ({
   };
 
   const handleRemoveEntry = (idx: number) => {
-    if (sb.entries.length <= 1) return;
+    if (!sb.entries || sb.entries.length <= 1) return;
     const newEntries = [...sb.entries];
     newEntries.splice(idx, 1);
     onUpdateStoryboard({ entries: newEntries });

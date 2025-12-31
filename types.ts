@@ -25,6 +25,9 @@ export interface Suggestion {
   environment?: string;
   socialBackground?: string;
   coreNarrative?: string;
+  // The following fields are used to refine the production DNA during the inspiration phase
+  format?: string;
+  style?: string;
 }
 
 export interface StageDesign {

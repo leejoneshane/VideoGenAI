@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { Loader2, Play, CheckCircle2, Video, Map, User, Clock, Link, Type, UserCircle, Zap, RefreshCw } from 'lucide-react';
+import React, { useRef } from 'react';
+import { Loader2, Play, CheckCircle2, Video, Map, User, Clock, Link, Type, UserCircle, Zap, RefreshCw, Download, Upload, ShieldCheck } from 'lucide-react';
 import { ProjectState, VideoPromptEntry } from '../types';
 
 interface VideoPromptPhaseProps {
@@ -9,14 +9,17 @@ interface VideoPromptPhaseProps {
   onUpdateMetadata: (title: string, author: string) => void;
   onUpdatePrompt: (idx: number, prompt: string) => void;
   onGenerateVideo: (idx: number) => void;
+  onUploadVideo: (idx: number, file: File) => void;
   generatingIdx: number | null;
   guideText: string;
   onRefreshAllPrompts: () => void;
 }
 
 export const VideoPromptPhase: React.FC<VideoPromptPhaseProps> = ({
-  project, isLoading, onUpdateMetadata, onUpdatePrompt, onGenerateVideo, generatingIdx, guideText, onRefreshAllPrompts
+  project, isLoading, onUpdateMetadata, onUpdatePrompt, onGenerateVideo, onUploadVideo, generatingIdx, guideText, onRefreshAllPrompts
 }) => {
+  const fileInputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
   if (isLoading && !project.videoPrompts) {
     return (
       <div className="py-20 flex flex-col items-center gap-6 animate-pulse">
@@ -28,11 +31,28 @@ export const VideoPromptPhase: React.FC<VideoPromptPhaseProps> = ({
 
   if (!project.videoPrompts) return null;
 
+  const handleDownloadClip = (url: string, idx: number) => {
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Shot_${idx + 1}_${project.videoTitle || 'Clip'}.mp4`;
+    link.click();
+  };
+
+  const triggerUpload = (idx: number) => {
+    fileInputRefs.current[idx]?.click();
+  };
+
   return (
     <div className="w-full space-y-8 pb-20 animate-in fade-in duration-1000">
       <div className="text-center space-y-3">
         <h2 className="text-2xl font-serif text-neutral-100">根據拍攝願景，生成完整影片！</h2>
-        <p className="text-xs text-neutral-500 max-w-xl mx-auto italic">每個提示詞皆遵循 5 秒原則切分。修改上方資訊後，Shot 1 會自動同步更新；若想重新思考全片，請點擊右側重新規劃按鈕。</p>
+        <div className="flex items-center justify-center gap-2">
+          <span className="text-xs text-neutral-500 italic">每個提示詞皆遵循 5 秒原則切分。</span>
+          <div className="px-2 py-0.5 bg-green-500/10 border border-green-500/20 rounded-full flex items-center gap-1">
+            <ShieldCheck className="w-3 h-3 text-green-500" />
+            <span className="text-[9px] font-bold text-green-500 uppercase tracking-tighter">Veo 3.1 HQ Mode</span>
+          </div>
+        </div>
       </div>
 
       {/* 影片元數據編輯區 */}
@@ -105,7 +125,7 @@ export const VideoPromptPhase: React.FC<VideoPromptPhaseProps> = ({
                     controls
                   />
                   <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-2 opacity-0 group-hover/vid:opacity-100 transition-opacity">
-                    <p className="text-[8px] text-white/60 font-mono text-center">本地緩存預覽已就緒</p>
+                    <p className="text-[8px] text-white/60 font-mono text-center">預覽模式：本地媒體連結</p>
                   </div>
                 </div>
               ) : (
@@ -143,18 +163,49 @@ export const VideoPromptPhase: React.FC<VideoPromptPhaseProps> = ({
                 />
               </div>
               
-              <div className="flex justify-end gap-3">
+              <div className="flex justify-end items-center gap-2">
+                {/* 下載片段按鈕 */}
+                <button 
+                  onClick={() => handleDownloadClip(entry.videoUrl!, idx)}
+                  disabled={!entry.videoUrl}
+                  className={`p-2 rounded-full border transition-all ${entry.videoUrl ? 'border-neutral-700 text-neutral-400 hover:bg-white/5 hover:text-white' : 'border-neutral-800 text-neutral-700 opacity-30 cursor-not-allowed'}`}
+                  title="下載此片段 (MP4)"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                </button>
+
+                {/* 上傳片段按鈕 */}
+                <button 
+                  onClick={() => triggerUpload(idx)}
+                  className="p-2 rounded-full border border-neutral-700 text-neutral-400 hover:bg-white/5 hover:text-white transition-all"
+                  title="上傳此片段素材"
+                >
+                  <Upload className="w-3.5 h-3.5" />
+                </button>
+                <input 
+                  type="file" 
+                  ref={el => { fileInputRefs.current[idx] = el; }}
+                  className="hidden" 
+                  accept="video/mp4" 
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) onUploadVideo(idx, file);
+                  }}
+                />
+
+                <div className="w-px h-4 bg-white/10 mx-1" />
+
                 <button 
                   onClick={() => onGenerateVideo(idx)}
                   disabled={generatingIdx !== null}
                   className={`flex items-center gap-2 px-6 py-2 rounded-full text-[11px] font-bold transition-all shadow-lg ${entry.videoUrl ? 'bg-green-600/20 text-green-400 border border-green-600/30' : 'bg-amber-600 hover:bg-amber-500 text-white'}`}
                 >
                   {generatingIdx === idx ? (
-                    <><Loader2 className="w-3.5 h-3.5 animate-spin" /> 影片轉碼中...</>
+                    <><Loader2 className="w-3.5 h-3.5 animate-spin" /> HQ 渲染中...</>
                   ) : entry.videoUrl ? (
-                    <><Play className="w-3.5 h-3.5" /> 重新拍攝片段</>
+                    <><Play className="w-3.5 h-3.5" /> 重新 HQ 拍攝</>
                   ) : (
-                    <><Zap className="w-3.5 h-3.5" /> 生成影片片段</>
+                    <><Zap className="w-3.5 h-3.5" /> 生成 HQ 影片片段</>
                   )}
                 </button>
               </div>
