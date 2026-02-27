@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Message, ProductionPhase } from '../types';
 import { Loader2, Send, Image as ImageIcon, Video, Film, PlayCircle } from 'lucide-react';

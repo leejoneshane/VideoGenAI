@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Loader2, MapPin, Edit3, Grid, Wand2 } from 'lucide-react';
 import { ProjectState, StageDesign } from '../types';

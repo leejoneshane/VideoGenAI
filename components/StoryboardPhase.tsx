@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 // Added Plus and Trash2 to the imports from lucide-react
 import { Loader2, Info, BookOpen, Video, Move, Plus, Trash2 } from 'lucide-react';

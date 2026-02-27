@@ -1,4 +1,3 @@
-
 import { ProductionPhase } from './types';
 
 export const SYSTEM_INSTRUCTION = `你是一位頂尖的「電影美術指導」與「敘事空間架構師」。你專精於將文字劇本轉化為具備戲劇張力的「核心舞台 (Core Stage)」。

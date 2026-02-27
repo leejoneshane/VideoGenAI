@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Loader2, Flag, Zap, Trophy, History, Layers, MessageSquare, Plus, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
 import { ProjectState, StoryArchitecture } from '../types';

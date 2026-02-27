@@ -1,4 +1,3 @@
-
 import { Loader2, Users, PersonStanding, Eye, Palette, Target, Wand2, Grid } from 'lucide-react';
 import React from 'react';
 import { CharacterDesign, ProjectState } from '../types';

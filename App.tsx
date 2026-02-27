@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { ProductionPhase, Suggestion, ProjectState, ProjectDNA, StageDesign, CharacterDesign, StoryArchitecture, Storyboard, VideoPromptEntry } from './types';
 import { PHASE_METADATA } from './constants';

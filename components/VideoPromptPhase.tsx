@@ -1,4 +1,3 @@
-
 import React, { useRef } from 'react';
 import { Loader2, Play, CheckCircle2, Video, Map, User, Clock, Link, Type, UserCircle, Zap, RefreshCw, Download, Upload, ShieldCheck } from 'lucide-react';
 import { ProjectState, VideoPromptEntry } from '../types';

@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 import { SYSTEM_INSTRUCTION } from "../constants";
 import { Suggestion, StageDesign, CharacterDesign, ProjectDNA, ProductionPhase, StoryArchitecture, Storyboard, VideoPromptEntry } from "../types";
@@ -368,7 +367,7 @@ ${text}
     const prompt = `A cinematic masterpiece mood board capturing the essence of: "${dna.story}". Cinematic lighting, Texture-driven, Style: ${dna.style}.`;
     try {
       const response = await ai.models.generateContent({
-        model: 'gemini-3-pro-image-preview',
+        model: 'gemini-3.1-flash-image-preview',
         contents: { parts: [{ text: prompt }] },
         config: { imageConfig: { aspectRatio: dna.ratio === '9:16' ? "9:16" : "16:9", imageSize: "1K" } }
       });
@@ -400,7 +399,7 @@ ${text}
 
     try {
       const response = await ai.models.generateContent({
-        model: 'gemini-3-pro-image-preview',
+        model: 'gemini-3.1-flash-image-preview',
         contents: { parts: [{ text: gridPrompt }] },
         config: { imageConfig: { aspectRatio: "1:1", imageSize: "1K" } }
       });
@@ -433,7 +432,7 @@ ${text}
 
     try {
       const response = await ai.models.generateContent({
-        model: 'gemini-3-pro-image-preview',
+        model: 'gemini-3.1-flash-image-preview',
         contents: { parts: [{ text: gridPrompt }] },
         config: { imageConfig: { aspectRatio: "1:1", imageSize: "1K" } }
       });

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Target, Users, MapPin, BookOpen, ImageIcon, Loader2, Maximize2, Palette, Zap, Wand2 } from 'lucide-react';
 import { ProjectDNA } from '../types';

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Loader2, Sparkles, Layout, Palette, Monitor, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { Suggestion, ProjectDNA } from '../types';
